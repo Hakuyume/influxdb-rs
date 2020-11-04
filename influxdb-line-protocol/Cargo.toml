@@ -1,6 +1,6 @@
 [package]
 name = "influxdb-line-protocol"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Toru Ogawa <Hakuyume@users.noreply.github.com>"]
 edition = "2018"
 description = "Rust implementation of InfluxDB's line protocol"
