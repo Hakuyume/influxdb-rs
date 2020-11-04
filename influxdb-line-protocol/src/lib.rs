@@ -94,6 +94,7 @@ where
     if let Some(timestamp) = timestamp {
         write!(writer, " {}", timestamp)?;
     }
+    write!(writer, "\n")?;
     Ok(())
 }
 
@@ -151,7 +152,10 @@ mod tests {
                 Some(1556813561098000000),
             )
             .unwrap(),
-            r#"myMeasurement,tag1=value1,tag2=value2 fieldKey="fieldValue" 1556813561098000000"#
+            concat!(
+                r#"myMeasurement,tag1=value1,tag2=value2 fieldKey="fieldValue" 1556813561098000000"#,
+                "\n"
+            ),
         );
         assert_eq!(
             to_string(
@@ -161,7 +165,7 @@ mod tests {
                 None,
             )
             .unwrap(),
-            r#"my\ Measurement fieldKey="string value""#
+            concat!(r#"my\ Measurement fieldKey="string value""#, "\n"),
         );
         assert_eq!(
             to_string(
@@ -174,7 +178,10 @@ mod tests {
                 None,
             )
             .unwrap(),
-            r#"myMeasurement fieldKey="\"string\" within a string""#
+            concat!(
+                r#"myMeasurement fieldKey="\"string\" within a string""#,
+                "\n"
+            ),
         );
         assert_eq!(
             to_string(
@@ -184,7 +191,10 @@ mod tests {
                 None,
             )
             .unwrap(),
-            r#"myMeasurement,tag\ Key1=tag\ Value1,tag\ Key2=tag\ Value2 fieldKey=100"#
+            concat!(
+                r#"myMeasurement,tag\ Key1=tag\ Value1,tag\ Key2=tag\ Value2 fieldKey=100"#,
+                "\n"
+            ),
         );
         assert_eq!(
             to_string(
@@ -194,7 +204,10 @@ mod tests {
                 Some(1556813561098000000),
             )
             .unwrap(),
-            r#"myMeasurement,tagKey=🍭 fieldKey="Launch 🚀" 1556813561098000000"#,
+            concat!(
+                r#"myMeasurement,tagKey=🍭 fieldKey="Launch 🚀" 1556813561098000000"#,
+                "\n"
+            ),
         );
 
         assert_eq!(
@@ -208,7 +221,7 @@ mod tests {
                 None,
             )
             .unwrap(),
-            r#"myMeasurement fieldKey1=1,fieldKey2=2i"#
+            concat!(r#"myMeasurement fieldKey1=1,fieldKey2=2i"#, "\n"),
         );
     }
 
