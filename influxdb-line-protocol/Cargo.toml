@@ -11,5 +11,9 @@ readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = ["std"]
+std = ["thiserror"]
+
 [dependencies]
-thiserror = "1.0"
+thiserror = { version = "1.0", optional = true }

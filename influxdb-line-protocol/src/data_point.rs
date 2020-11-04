@@ -1,5 +1,5 @@
 use crate::{check_string_length, Error, FieldValue};
-use std::fmt::Write;
+use core::fmt::Write;
 
 #[derive(Clone, Copy, Debug)]
 pub struct DataPoint<'a, T, F>
@@ -76,6 +76,7 @@ where
         Ok(())
     }
 
+    #[cfg(feature = "std")]
     pub fn into_string(self) -> Result<String, Error> {
         let mut string = String::new();
         self.into_writer(&mut string)?;

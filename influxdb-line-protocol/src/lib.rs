@@ -14,6 +14,8 @@
 //! print!("{}", data_point.into_string().unwrap());
 //! ```
 
+#![cfg_attr(not(feature = "std"), no_std)]
+
 mod data_point;
 mod error;
 mod field_value;
