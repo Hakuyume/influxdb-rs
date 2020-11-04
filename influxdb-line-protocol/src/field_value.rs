@@ -1,5 +1,5 @@
-use crate::Error;
-use core::fmt::Write;
+use crate::{check_string_length, Error};
+use std::fmt::Write;
 
 #[derive(Clone, Copy, Debug)]
 pub enum FieldValue<'a> {
@@ -20,6 +20,7 @@ impl FieldValue<'_> {
             FieldValue::Integer(v) => write!(writer, "{}i", v)?,
             FieldValue::UInteger(v) => write!(writer, "{}u", v)?,
             FieldValue::String(v) => {
+                check_string_length(v)?;
                 writer.write_char('"')?;
                 for c in v.chars() {
                     match c {

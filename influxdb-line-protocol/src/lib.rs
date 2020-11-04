@@ -1,10 +1,16 @@
 mod field_value;
 
-use core::fmt::Write;
 pub use field_value::FieldValue;
+use std::fmt::Write;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
+    #[error("measurement names, tag keys, and field keys cannot begin with an underscore")]
+    NamingRestrictions,
+    #[error("points must have at least one field")]
+    EmptyFieldSet,
+    #[error("length limit 64KB")]
+    StringLengthLimit,
     #[error(transparent)]
     Fmt(#[from] std::fmt::Error),
 }
@@ -21,6 +27,10 @@ where
     T: IntoIterator<Item = (&'a str, &'a str)>,
     F: IntoIterator<Item = (&'a str, FieldValue<'a>)>,
 {
+    check_string_length(measurement)?;
+    if measurement.starts_with('_') {
+        return Err(Error::NamingRestrictions);
+    }
     for c in measurement.chars() {
         match c {
             ',' => writer.write_str(r#"\,"#)?,
@@ -31,19 +41,35 @@ where
 
     for (key, value) in tag_set {
         write!(writer, ",")?;
+        check_string_length(key)?;
+        if key.starts_with('_') {
+            return Err(Error::NamingRestrictions);
+        }
         escape(&mut writer, key)?;
         write!(writer, "=")?;
+        check_string_length(value)?;
         escape(&mut writer, value)?;
     }
 
-    write!(writer, " ")?;
+    let mut count = 0;
     for (i, (key, value)) in field_set.into_iter().enumerate() {
-        if i > 0 {
+        if i == 0 {
+            write!(writer, " ")?;
+        } else {
             write!(writer, ",")?;
+        }
+        check_string_length(key)?;
+        if key.starts_with('_') {
+            return Err(Error::NamingRestrictions);
         }
         escape(&mut writer, key)?;
         write!(writer, "=")?;
         value.to_writer(&mut writer)?;
+
+        count += 1;
+    }
+    if count == 0 {
+        return Err(Error::EmptyFieldSet);
     }
 
     if let Some(timestamp) = timestamp {
@@ -67,7 +93,7 @@ where
     Ok(string)
 }
 
-// for Tag key, Tag value, and Field Key
+// For tag key, tag value, and field key
 fn escape<W>(mut writer: W, value: &str) -> Result<(), Error>
 where
     W: Write,
@@ -83,10 +109,18 @@ where
     Ok(())
 }
 
+fn check_string_length(value: &str) -> Result<(), Error> {
+    if value.len() <= 64 << 10 {
+        Ok(())
+    } else {
+        Err(Error::StringLengthLimit)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{to_string, FieldValue};
-    use core::iter;
+    use std::iter;
 
     #[test]
     fn test_to_string() {
@@ -157,5 +191,39 @@ mod tests {
             .unwrap(),
             r#"myMeasurement fieldKey1=1,fieldKey2=2i"#
         );
+    }
+
+    #[test]
+    #[should_panic(expected = "NamingRestrictions")]
+    fn test_to_string_naming_restrictions() {
+        to_string(
+            "_myMeasurement",
+            iter::empty(),
+            vec![("fieldKey", FieldValue::String("fieldValue"))],
+            None,
+        )
+        .unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "EmptyFieldSet")]
+    fn test_to_string_empty_field_set() {
+        to_string("myMeasurement", iter::empty(), vec![], None).unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "StringLengthLimit")]
+    fn test_to_string_string_length_limit() {
+        let mut field_value = String::new();
+        for _ in 0..=64 << 10 {
+            field_value += "a"
+        }
+        to_string(
+            "myMeasurement",
+            iter::empty(),
+            vec![("fieldKey", FieldValue::String(&field_value))],
+            None,
+        )
+        .unwrap();
     }
 }
