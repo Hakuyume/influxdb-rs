@@ -1,0 +1,40 @@
+name: Rust
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+        - x86_64-unknown-linux-gnu
+        - x86_64-unknown-linux-musl
+    steps:
+    - uses: actions/checkout@v2
+    - run: rustup target add ${{ matrix.target }}
+    - run: cargo build --verbose --target ${{ matrix.target }} --all-targets --all-features
+    - run: cargo test --verbose --target ${{ matrix.target }} --all-features
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: cargo fmt --verbose -- --check
+    - run: cargo clippy --all-targets --all-features
+  doc:
+    if: github.ref == 'refs/heads/master'
+    needs: [test, lint]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: cargo doc --verbose --all-features --no-deps
+    - uses: peaceiris/actions-gh-pages@v2
+      env:
+        ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        PUBLISH_BRANCH: gh-pages
+        PUBLISH_DIR: ./target/doc/
+      with:
+        forceOrphan: true

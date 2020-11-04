@@ -11,7 +11,7 @@
 //!     field_set: vec![("fieldKey", FieldValue::String("fieldValue"))],
 //!     timestamp: Some(1556813561098000000),
 //! };
-//! print!("{}", data_point.to_string().unwrap());
+//! print!("{}", data_point.into_string().unwrap());
 //! ```
 
 mod data_point;

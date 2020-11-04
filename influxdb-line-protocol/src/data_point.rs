@@ -18,7 +18,7 @@ where
     T: IntoIterator<Item = (&'a str, &'a str)>,
     F: IntoIterator<Item = (&'a str, FieldValue<'a>)>,
 {
-    pub fn to_writer<W>(self, mut writer: W) -> Result<(), Error>
+    pub fn into_writer<W>(self, mut writer: W) -> Result<(), Error>
     where
         W: Write,
     {
@@ -76,9 +76,9 @@ where
         Ok(())
     }
 
-    pub fn to_string(self) -> Result<String, Error> {
+    pub fn into_string(self) -> Result<String, Error> {
         let mut string = String::new();
-        self.to_writer(&mut string)?;
+        self.into_writer(&mut string)?;
         Ok(string)
     }
 }
