@@ -30,6 +30,8 @@ pub enum Error {
     EmptyFieldSet,
     #[error("length limit 64KB")]
     StringLengthLimit,
+    #[error("line protocol does not support the newline character in tag or field values")]
+    Newline,
     #[error(transparent)]
     Fmt(#[from] std::fmt::Error),
 }
@@ -52,6 +54,7 @@ where
     }
     for c in measurement.chars() {
         match c {
+            '\n' => return Err(Error::Newline),
             ',' => writer.write_str(r#"\,"#)?,
             ' ' => writer.write_str(r#"\ "#)?,
             _ => writer.write_char(c)?,
@@ -120,6 +123,7 @@ where
 {
     for c in value.chars() {
         match c {
+            '\n' => return Err(Error::Newline),
             ',' => writer.write_str(r#"\,"#)?,
             '=' => writer.write_str(r#"\="#)?,
             ' ' => writer.write_str(r#"\ "#)?,
@@ -254,6 +258,18 @@ mod tests {
             "myMeasurement",
             iter::empty(),
             vec![("fieldKey", FieldValue::String(&field_value))],
+            None,
+        )
+        .unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "Newline")]
+    fn test_to_string_newline() {
+        to_string(
+            "myMeasurement",
+            iter::empty(),
+            vec![("fieldKey", FieldValue::String("field\nValue"))],
             None,
         )
         .unwrap();

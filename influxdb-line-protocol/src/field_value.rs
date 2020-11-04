@@ -24,6 +24,7 @@ impl FieldValue<'_> {
                 writer.write_char('"')?;
                 for c in v.chars() {
                     match c {
+                        '\n' => return Err(Error::Newline),
                         '"' => writer.write_str(r#"\""#)?,
                         '\\' => writer.write_str(r#"\\"#)?,
                         _ => writer.write_char(c)?,
