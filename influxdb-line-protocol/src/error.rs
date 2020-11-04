@@ -1,13 +1,26 @@
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug)]
+#[cfg_attr(feature = "std", derive(thiserror::Error))]
 pub enum Error {
-    #[error("measurement names, tag keys, and field keys cannot begin with an underscore")]
+    #[cfg_attr(
+        feature = "std",
+        error("measurement names, tag keys, and field keys cannot begin with an underscore")
+    )]
     NamingRestrictions,
-    #[error("points must have at least one field")]
+    #[cfg_attr(feature = "std", error("points must have at least one field"))]
     EmptyFieldSet,
-    #[error("length limit 64KB")]
+    #[cfg_attr(feature = "std", error("length limit 64KB"))]
     StringLengthLimit,
-    #[error("line protocol does not support the newline character in tag or field values")]
+    #[cfg_attr(
+        feature = "std",
+        error("line protocol does not support the newline character in tag or field values")
+    )]
     Newline,
-    #[error(transparent)]
-    Fmt(#[from] std::fmt::Error),
+    #[cfg_attr(feature = "std", error(transparent))]
+    Fmt(core::fmt::Error),
+}
+
+impl From<core::fmt::Error> for Error {
+    fn from(value: core::fmt::Error) -> Self {
+        Self::Fmt(value)
+    }
 }

@@ -1,5 +1,5 @@
 use crate::{check_string_length, Error};
-use std::fmt::Write;
+use core::fmt::Write;
 
 #[derive(Clone, Copy, Debug)]
 pub enum FieldValue<'a> {
@@ -47,6 +47,7 @@ impl FieldValue<'_> {
 #[cfg(test)]
 mod tests {
     use super::FieldValue;
+    use std::string::String;
 
     fn check(field_value: FieldValue, expected: &str) {
         let mut string = String::new();
