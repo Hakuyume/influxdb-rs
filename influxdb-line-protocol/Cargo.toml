@@ -3,6 +3,11 @@ name = "influxdb-line-protocol"
 version = "0.1.0"
 authors = ["Toru Ogawa <Hakuyume@users.noreply.github.com>"]
 edition = "2018"
+description = "Rust implementation of InfluxDB's line protocol"
+license = "BSD-3-Clause"
+documentation = "https://docs.rs/crate/influxdb-line-protocol/"
+repository = "https://github.com/Hakuyume/influxdb-rs"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
