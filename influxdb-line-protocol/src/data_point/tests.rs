@@ -3,7 +3,7 @@ use crate::FieldValue;
 use std::iter;
 
 #[test]
-fn test_to_string() {
+fn test_into_string() {
     assert_eq!(
         DataPoint {
             measurement: "myMeasurement",
@@ -11,7 +11,7 @@ fn test_to_string() {
             field_set: vec![("fieldKey", FieldValue::String("fieldValue"))],
             timestamp: Some(1556813561098000000),
         }
-        .to_string()
+        .into_string()
         .unwrap(),
         concat!(
             r#"myMeasurement,tag1=value1,tag2=value2 fieldKey="fieldValue" 1556813561098000000"#,
@@ -25,7 +25,7 @@ fn test_to_string() {
             field_set: vec![("fieldKey", FieldValue::String(r#"string value"#))],
             timestamp: None,
         }
-        .to_string()
+        .into_string()
         .unwrap(),
         concat!(r#"my\ Measurement fieldKey="string value""#, "\n"),
     );
@@ -39,7 +39,7 @@ fn test_to_string() {
             )],
             timestamp: None,
         }
-        .to_string()
+        .into_string()
         .unwrap(),
         concat!(
             r#"myMeasurement fieldKey="\"string\" within a string""#,
@@ -53,7 +53,7 @@ fn test_to_string() {
             field_set: vec![("fieldKey", FieldValue::Float(100.))],
             timestamp: None,
         }
-        .to_string()
+        .into_string()
         .unwrap(),
         concat!(
             r#"myMeasurement,tag\ Key1=tag\ Value1,tag\ Key2=tag\ Value2 fieldKey=100"#,
@@ -67,7 +67,7 @@ fn test_to_string() {
             field_set: vec![("fieldKey", FieldValue::String(r#"Launch 🚀"#))],
             timestamp: Some(1556813561098000000),
         }
-        .to_string()
+        .into_string()
         .unwrap(),
         concat!(
             r#"myMeasurement,tagKey=🍭 fieldKey="Launch 🚀" 1556813561098000000"#,
@@ -85,7 +85,7 @@ fn test_to_string() {
             ],
             timestamp: None,
         }
-        .to_string()
+        .into_string()
         .unwrap(),
         concat!(r#"myMeasurement fieldKey1=1,fieldKey2=2i"#, "\n"),
     );
@@ -93,33 +93,33 @@ fn test_to_string() {
 
 #[test]
 #[should_panic(expected = "NamingRestrictions")]
-fn test_to_string_naming_restrictions() {
+fn test_into_string_naming_restrictions() {
     DataPoint {
         measurement: "_myMeasurement",
         tag_set: iter::empty(),
         field_set: vec![("fieldKey", FieldValue::String("fieldValue"))],
         timestamp: None,
     }
-    .to_string()
+    .into_string()
     .unwrap();
 }
 
 #[test]
 #[should_panic(expected = "EmptyFieldSet")]
-fn test_to_string_empty_field_set() {
+fn test_into_string_empty_field_set() {
     DataPoint {
         measurement: "myMeasurement",
         tag_set: iter::empty(),
         field_set: vec![],
         timestamp: None,
     }
-    .to_string()
+    .into_string()
     .unwrap();
 }
 
 #[test]
 #[should_panic(expected = "StringLengthLimit")]
-fn test_to_string_string_length_limit() {
+fn test_into_string_string_length_limit() {
     let mut field_value = String::new();
     for _ in 0..=64 << 10 {
         field_value += "a"
@@ -130,19 +130,19 @@ fn test_to_string_string_length_limit() {
         field_set: vec![("fieldKey", FieldValue::String(&field_value))],
         timestamp: None,
     }
-    .to_string()
+    .into_string()
     .unwrap();
 }
 
 #[test]
 #[should_panic(expected = "Newline")]
-fn test_to_string_newline() {
+fn test_into_string_newline() {
     DataPoint {
         measurement: "myMeasurement",
         tag_set: iter::empty(),
         field_set: vec![("fieldKey", FieldValue::String("field\nValue"))],
         timestamp: None,
     }
-    .to_string()
+    .into_string()
     .unwrap();
 }
