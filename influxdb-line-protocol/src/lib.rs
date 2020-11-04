@@ -1,6 +1,6 @@
 mod field_value;
 
-use core::fmt::{Result, Write};
+use core::fmt::Write;
 pub use field_value::FieldValue;
 
 #[derive(Debug, thiserror::Error)]
@@ -15,7 +15,7 @@ pub fn to_writer<'a, W, T, F>(
     tag_set: T,
     field_set: F,
     timestamp: Option<i64>,
-) -> Result
+) -> Result<(), Error>
 where
     W: Write,
     T: IntoIterator<Item = (&'a str, &'a str)>,
@@ -57,18 +57,18 @@ pub fn to_string<'a, T, F>(
     tag_set: T,
     field_set: F,
     timestamp: Option<i64>,
-) -> String
+) -> Result<String, Error>
 where
     T: IntoIterator<Item = (&'a str, &'a str)>,
     F: IntoIterator<Item = (&'a str, FieldValue<'a>)>,
 {
     let mut string = String::new();
-    to_writer(&mut string, measurement, tag_set, field_set, timestamp).unwrap();
-    string
+    to_writer(&mut string, measurement, tag_set, field_set, timestamp)?;
+    Ok(string)
 }
 
 // for Tag key, Tag value, and Field Key
-fn escape<W>(mut writer: W, value: &str) -> Result
+fn escape<W>(mut writer: W, value: &str) -> Result<(), Error>
 where
     W: Write,
 {
@@ -96,7 +96,8 @@ mod tests {
                 vec![("tag1", "value1"), ("tag2", "value2")],
                 vec![("fieldKey", FieldValue::String("fieldValue"))],
                 Some(1556813561098000000),
-            ),
+            )
+            .unwrap(),
             r#"myMeasurement,tag1=value1,tag2=value2 fieldKey="fieldValue" 1556813561098000000"#
         );
         assert_eq!(
@@ -105,7 +106,8 @@ mod tests {
                 iter::empty(),
                 vec![("fieldKey", FieldValue::String(r#"string value"#))],
                 None,
-            ),
+            )
+            .unwrap(),
             r#"my\ Measurement fieldKey="string value""#
         );
         assert_eq!(
@@ -117,7 +119,8 @@ mod tests {
                     FieldValue::String(r#""string" within a string"#)
                 )],
                 None,
-            ),
+            )
+            .unwrap(),
             r#"myMeasurement fieldKey="\"string\" within a string""#
         );
         assert_eq!(
@@ -126,7 +129,8 @@ mod tests {
                 vec![("tag Key1", "tag Value1"), ("tag Key2", "tag Value2")],
                 vec![("fieldKey", FieldValue::Float(100.))],
                 None,
-            ),
+            )
+            .unwrap(),
             r#"myMeasurement,tag\ Key1=tag\ Value1,tag\ Key2=tag\ Value2 fieldKey=100"#
         );
         assert_eq!(
@@ -135,7 +139,8 @@ mod tests {
                 vec![("tagKey", "🍭")],
                 vec![("fieldKey", FieldValue::String(r#"Launch 🚀"#))],
                 Some(1556813561098000000),
-            ),
+            )
+            .unwrap(),
             r#"myMeasurement,tagKey=🍭 fieldKey="Launch 🚀" 1556813561098000000"#,
         );
 
@@ -148,7 +153,8 @@ mod tests {
                     ("fieldKey2", FieldValue::Integer(2))
                 ],
                 None,
-            ),
+            )
+            .unwrap(),
             r#"myMeasurement fieldKey1=1,fieldKey2=2i"#
         );
     }

@@ -1,4 +1,5 @@
-use core::fmt::{Result, Write};
+use crate::Error;
+use core::fmt::Write;
 
 #[derive(Clone, Copy, Debug)]
 pub enum FieldValue<'a> {
@@ -10,14 +11,14 @@ pub enum FieldValue<'a> {
 }
 
 impl FieldValue<'_> {
-    pub fn to_writer<W>(&self, mut writer: W) -> Result
+    pub fn to_writer<W>(&self, mut writer: W) -> Result<(), Error>
     where
         W: Write,
     {
         match self {
-            FieldValue::Float(v) => write!(writer, "{}", v),
-            FieldValue::Integer(v) => write!(writer, "{}i", v),
-            FieldValue::UInteger(v) => write!(writer, "{}u", v),
+            FieldValue::Float(v) => write!(writer, "{}", v)?,
+            FieldValue::Integer(v) => write!(writer, "{}i", v)?,
+            FieldValue::UInteger(v) => write!(writer, "{}u", v)?,
             FieldValue::String(v) => {
                 writer.write_char('"')?;
                 for c in v.chars() {
@@ -28,16 +29,16 @@ impl FieldValue<'_> {
                     }
                 }
                 writer.write_char('"')?;
-                Ok(())
             }
             FieldValue::Boolean(v) => {
                 if *v {
-                    write!(writer, "true")
+                    write!(writer, "true")?
                 } else {
-                    write!(writer, "false")
+                    write!(writer, "false")?
                 }
             }
         }
+        Ok(())
     }
 }
 
