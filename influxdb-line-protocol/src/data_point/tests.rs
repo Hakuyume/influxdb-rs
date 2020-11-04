@@ -1,7 +1,6 @@
 use super::DataPoint;
 use crate::FieldValue;
 use core::iter;
-use std::string::String;
 
 fn check<'a, T, F>(data_point: DataPoint<'a, T, F>, expected: &str)
 where
