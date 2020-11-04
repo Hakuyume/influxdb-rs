@@ -1,3 +1,22 @@
+//! Rust implementation of [InfluxDB's line protocol](https://docs.influxdata.com/influxdb/v2.0/reference/syntax/line-protocol/)
+//!
+//! # Example
+//!
+//! ```
+//! use influxdb_line_protocol::FieldValue;
+//!
+//! print!(
+//!     "{}",
+//!     to_string(
+//!         "myMeasurement",
+//!         vec![("tag1", "value1"), ("tag2", "value2")],
+//!         vec![("fieldKey", FieldValue::String("fieldValue"))],
+//!         Some(1556813561098000000),
+//!     )
+//!     .unwrap()
+//! );
+//! '''
+
 mod field_value;
 
 pub use field_value::FieldValue;
