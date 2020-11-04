@@ -7,7 +7,7 @@
 //!
 //! print!(
 //!     "{}",
-//!     to_string(
+//!     influxdb_line_protocol::to_string(
 //!         "myMeasurement",
 //!         vec![("tag1", "value1"), ("tag2", "value2")],
 //!         vec![("fieldKey", FieldValue::String("fieldValue"))],
@@ -15,7 +15,7 @@
 //!     )
 //!     .unwrap()
 //! );
-//! '''
+//! ```
 
 mod field_value;
 
